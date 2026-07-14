@@ -83,8 +83,8 @@ export function buildSurfaces(){
     S('ret_r', 1700, 874, 736, 874, {kind: 'belt', speed: -200, region: 'dispatch', next: 'ledge_base'}),
     
     // PREVIOUS SURFACES
-    S('gy1',578,246,498,330,{region:'sorter',next:'gy2'}),
-    S('gy2',498,330,480,390,{region:'sorter'}),
+    S('gy1',578,246,540,285,{region:'sorter',next:'gy2'}),
+    S('gy2',540,285,500,310,{region:'sorter'}),
     S('wm1',587,248,642,330,{region:'sorter',next:'wm2'}),
     S('wm2',642,330,656,386,{region:'sorter'}),
     S('bl1',594,244,700,314,{region:'sorter'}),
