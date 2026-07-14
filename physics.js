@@ -187,6 +187,11 @@ export function step(world,dt,motOf){
       let binned=false;
       for(const b of world.bins){
         if(p.vy>0&&oy<=b.y&&p.y>b.y&&p.x>b.x+6&&p.x<b.x+b.w-6){
+          if (b.id === 'grey' || b.id === 'blue') {
+             // do NOT set p.state to settled or delete them! Let them physically pile natively
+             binned = true;
+             break;
+          }
           p.bin=b.id;p.state='settled';
           const n=b.count;b.count++;
           b.colors[p.color]=(b.colors[p.color]||0)+1;
@@ -251,24 +256,58 @@ export function step(world,dt,motOf){
     }
   }
 
-  /* -------- weigh bucket logic -------- */
+  /* -------- weigh bucket logic (spatial counts & eruption) -------- */
   let greySum = 0;
   let blueSum = 0;
+  
+  // 1. Spatially count the items dynamically resting in the boundaries
   for(const p of world.parcels){
-    if(p.bin === 'grey') greySum += 1; // count the number of packages strictly
-    if(p.bin === 'blue' && p.number > 15) blueSum += 1;
+    if (p.x > 432 && p.x < 516 && p.y > 420 && p.y <= 474) greySum++; 
+    if (p.x > 980 && p.x < 1068 && p.y > 250 && p.y <= 304 && p.color === 'blue') blueSum++;
   }
+  
+  // Update the static counters for the renderer
+  const gb = world.bins.find(b => b.id === 'grey');
+  if (gb) gb.count = greySum;
+  const bb = world.bins.find(b => b.id === 'blue');
+  if (bb) bb.count = blueSum;
+
   const oldTipping = (world.weighBucket && world.weighBucket.tipping) ? world.weighBucket.tipping : 0;
   world.weighBucket = {weight: greySum};
   world.weighBucket.tipping = oldTipping;
   if (world.weighBucket.tipping > 0) world.weighBucket.tipping -= dt;
-  if(blueSum >= 5){
+  if(blueSum >= 5) {
     world.weighBucket.tipping = 0.5; // for rendering animation
-    world.bins.forEach(b => { if(b.id==='grey' || b.id==='blue') b.count = 0; });
-    for(const p of world.parcels){
-      if(p.bin === 'grey' || p.bin === 'blue'){
-        p.bin=null; p.state='fall'; p.fade=0;
-        p.vy = 20; p.vx = 0;
+  }
+  
+  // Handle spatial boundaries and eruption mechanics!
+  const erupting = world.weighBucket.tipping > 0;
+  
+  const floorG = world.smap['grey_floor'];
+  if (floorG) { floorG.y1 = erupting ? -1000 : 474; floorG.y2 = floorG.y1; }
+  
+  const floorB = world.smap['blue_floor'];
+  if (floorB) { floorB.y1 = erupting ? -1000 : 304; floorB.y2 = floorB.y1; }
+
+  for (const p of world.parcels) {
+    // Left/Right Walls for Grey Bucket (432, 516)
+    if (p.y > 420 && p.y <= 474) {
+      if (p.x > 410 && p.x < 460) p.x = Math.max(432 + p.hw, p.x); // Left wall
+      if (p.x > 480 && p.x < 530) p.x = Math.min(516 - p.hw, p.x); // Right wall
+      if (erupting && p.x > 420 && p.x < 530) {
+        if (p.state === 'surf' && p.surf === 'grey_floor') {
+            p.state = 'fall'; p.surf = null; p.vy = 20;
+        }
+      }
+    }
+    // Left/Right Walls for Blue Bucket (980, 1068)
+    if (p.y > 250 && p.y <= 304) {
+      if (p.x > 960 && p.x < 1010) p.x = Math.max(980 + p.hw, p.x); // Left wall
+      if (p.x > 1030 && p.x < 1090) p.x = Math.min(1068 - p.hw, p.x); // Right wall
+      if (erupting && p.x > 970 && p.x < 1080) {
+        if (p.state === 'surf' && p.surf === 'blue_floor') {
+            p.state = 'fall'; p.surf = null; p.vy = 20;
+        }
       }
     }
   }
