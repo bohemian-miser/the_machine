@@ -373,8 +373,14 @@ export function step(world,dt,motOf){
       if (p.x > 380 && p.x < 560) {
          let xl = 412 + (15/94)*(p.y - 310) + p.hw;
          let xr = 536 - (15/94)*(p.y - 310) - p.hw;
-         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
-         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
+         if (p.x < xl) { 
+            p.x = xl; p.vx *= 0.5; 
+            if (p.state === 'surf' && p.surf) { const sf = world.smap[p.surf]; if (sf.tx !== 0) p.s = (p.x + (p.surfOffset||0) - sf.x1)/sf.tx; }
+         }
+         if (p.x > xr) { 
+            p.x = xr; p.vx *= 0.5; 
+            if (p.state === 'surf' && p.surf) { const sf = world.smap[p.surf]; if (sf.tx !== 0) p.s = (p.x + (p.surfOffset||0) - sf.x1)/sf.tx; }
+         }
       }
     }
     // Blue bucket
@@ -382,8 +388,14 @@ export function step(world,dt,motOf){
       if (p.x > 950 && p.x < 1100) {
          let xl = 980 + (15/54)*(p.y - 250) + p.hw;
          let xr = 1068 - (15/54)*(p.y - 250) - p.hw;
-         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
-         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
+         if (p.x < xl) { 
+            p.x = xl; p.vx *= 0.5; 
+            if (p.state === 'surf' && p.surf) { const sf = world.smap[p.surf]; if (sf.tx !== 0) p.s = (p.x + (p.surfOffset||0) - sf.x1)/sf.tx; }
+         }
+         if (p.x > xr) { 
+            p.x = xr; p.vx *= 0.5; 
+            if (p.state === 'surf' && p.surf) { const sf = world.smap[p.surf]; if (sf.tx !== 0) p.s = (p.x + (p.surfOffset||0) - sf.x1)/sf.tx; }
+         }
       }
     }
   }
