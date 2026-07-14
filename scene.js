@@ -70,11 +70,11 @@ export function buildSurfaces(){
     // Bucket bin physical boundaries (slanted walls + floor)
     S('grey_wall_l', 412, 310, 427, 404, {region: 'sorter'}),
     S('grey_wall_r', 536, 310, 521, 404, {region: 'sorter'}),
-    S('grey_floor', 412, 404, 536, 404, {region: 'sorter', endStop: true}),
+    S('grey_floor', 412, 404, 536, 404, {region: 'sorter', noQueue: true, startStop: true, endStop: true}),
     
     S('blue_wall_l', 980, 250, 995, 304, {region: 'skyway'}),
     S('blue_wall_r', 1068, 250, 1053, 304, {region: 'skyway'}),
-    S('blue_floor', 980, 304, 1068, 304, {region: 'skyway', endStop: true}),
+    S('blue_floor', 980, 304, 1068, 304, {region: 'skyway', noQueue: true, startStop: true, endStop: true}),
 
     S('arm_track_1', 1050, 480, 1020, 630, {region: 'carousel'}),
     S('arm_track_2', 1190, 480, 1194, 498, {region: 'carousel', next: 'ck_in'}),
@@ -108,7 +108,7 @@ export function buildSurfaces(){
         return rej?{link:'ck_rej'}:{link:'ck_pass'};}}),
     S('ck_rej',1306,528,1318,566,{region:'check'}),
     S('ck_pass',1306,528,1338,614,{region:'check'}),
-    S('pickup',1240,700,1446,700,{region:'dispatch'}),
+    S('pickup',1240,700,1446,700,{region:'dispatch', noQueue: true, startStop: true, endStop: true}),
   ];
   const map={};for(const x of s)map[x.id]=x;return {list:s,map};
 }

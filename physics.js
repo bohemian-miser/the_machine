@@ -129,6 +129,7 @@ export function step(world,dt,motOf){
          let holdS = sf.holdAt || 130;
          if (p.s > holdS) { p.s = holdS; p.vt = 0; }
       }
+      if(sf.startStop && p.s < 2) { p.s = 2; p.vt = 0; }
       // Re-enable size filter dropping small packages:
       if(sf.id==='sieve'&&p.size==='sm'&&p.s>30&&p.s<40){
         leaveSurf(world,p,sf,p.s,1);
@@ -251,8 +252,9 @@ export function step(world,dt,motOf){
     for(const p of world.parcels)
       if(p.state==='surf'&&!p.bin)(bySurf[p.surf]=bySurf[p.surf]||[]).push(p);
     for(const id in bySurf){
-      const arr=bySurf[id];arr.sort((a,b)=>b.s-a.s); // front first
       const sf=world.smap[id];
+      if (sf.noQueue) continue; // Disable 1D queue constraint for literal buckets
+      const arr=bySurf[id];arr.sort((a,b)=>b.s-a.s); // front first
       let leadS=Infinity;
       for(const p of arr){
         // the pin slots in as an obstacle only for parcels still behind it
