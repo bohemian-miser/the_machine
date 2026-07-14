@@ -39,9 +39,9 @@ export function buildSurfaces(){
     S('cr_bypass', 580, 236, 160, 250, {kind:'belt', speed:120, region:'sorter'}),
     S('cr_belt', 180, 260, 40, 260, {kind:'belt', speed: 80, region:'crushers', next: 'cr_out'}),
     S('cr_out', 40, 260, 250, 450, {region:'crushers', next: 'pt_in'}), 
-    
-    // Grey bucket drops here, feeding into pt_in
-    S('pt_feed', 850, 526, 250, 450, {kind: 'belt', speed: 120, region: 'painters', next: 'pt_in'}),
+    // Grey bucket drops here, feeding UP to crusher to be broken down before painting
+    S('pt_feed', 850, 526, 300, 420, {kind: 'belt', speed: 120, region: 'crushers', next: 'cr_lift'}),
+    S('cr_lift', 300, 420, 200, 230, {kind: 'belt', speed: 140, region: 'crushers'}), 
     S('pt_in', 320, 460, 30, 460, {kind: 'belt', speed: 120, region: 'painters', next: 'pt_drop1'}), 
     S('pt_drop1', 30, 460, 30, 510, {region: 'painters', next: 'pt_b1'}),
     S('pt_b1', 30, 510, 235, 510, {kind: 'belt', speed: 120, region: 'painters', painter: 'magenta', next: 'pt_drop2'}), 
