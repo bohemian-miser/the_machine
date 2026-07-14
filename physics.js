@@ -64,7 +64,7 @@ export function surfPos(sf,s){return [sf.x1+sf.tx*s, sf.y1+sf.ty*s];}
 export function leaveSurf(world,p,sf,atS,dir){ 
   const [x,y]=surfPos(sf,atS);
   p.state='fall';p.surf=null;
-  p.x=x+sf.tx*2.5*dir; p.y=y+1.2;
+  p.x=x; p.y=y;
   p.vx=sf.tx*p.vt; p.vy=Math.max(0,sf.ty*p.vt);
   if(Math.abs(sf.ty)>0.6&&sf.kind!=='belt')p.vx*=0.3; 
   p.noLandId=sf.id; p.noLandT=world.t;
@@ -288,7 +288,7 @@ export function step(world,dt,motOf){
   if (world.weighBucket.tippingG > 0) world.weighBucket.tippingG -= dt;
   if (world.weighBucket.tippingB > 0) world.weighBucket.tippingB -= dt;
   
-  if (blueSum >= 15) {
+  if (blueSum >= 5) {
     world.weighBucket.tippingG = 0.5;
     world.weighBucket.tippingB = 0.5;
   }
