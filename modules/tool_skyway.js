@@ -71,7 +71,7 @@ export function step(world, dt, mot) {
       if (T.carrying && T.carrying.length > 0) {
         for (let i = T.carrying.length - 1; i >= 0; i--) {
           const p = T.carrying[i];
-          if (p.color === 'blue' && T.x > 1000 && T.x < 1050) { 
+          if (p.number > 15 && T.x > 1000 && T.x < 1050) { 
             p.state='fall'; p.carrier=null;
             p.x=T.x + (p.carrier ? p.carrier.dx : 0); p.y=162; p.vy=20; p.vx=0;
             T.carrying.splice(i, 1);
@@ -144,7 +144,7 @@ export function renderGlyph(ctx, world, r) {
   
   // Render a visual check at x=950, y=90
   ctx.font = '10px "IBM Plex Mono"';
-  ctx.fillText('color == blue ? fall : pass', 900, 95);
+  ctx.fillText('value > 15 ? fall : pass', 900, 95);
   ctx.beginPath(); ctx.moveTo(950, 100); ctx.lineTo(950, 130); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(945, 125); ctx.lineTo(950, 130); ctx.lineTo(955, 125); ctx.stroke();
 

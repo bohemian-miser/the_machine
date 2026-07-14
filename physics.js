@@ -282,7 +282,7 @@ export function step(world,dt,motOf){
   if (world.weighBucket.tippingG > 0) world.weighBucket.tippingG -= dt;
   if (world.weighBucket.tippingB > 0) world.weighBucket.tippingB -= dt;
   
-  if (blueSum >= 15) {
+  if (blueSum >= 5) {
     world.weighBucket.tippingG = 0.5;
     world.weighBucket.tippingB = 0.5;
   }
