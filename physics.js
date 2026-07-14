@@ -262,7 +262,7 @@ export function step(world,dt,motOf){
   
   // 1. Spatially count the items dynamically resting in the boundaries
   for(const p of world.parcels){
-    if (p.x > 432 && p.x < 516 && p.y > 350 && p.y <= 404) greySum++; 
+    if (p.x > 412 && p.x < 536 && p.y > 310 && p.y <= 404) greySum++; 
     if (p.x > 980 && p.x < 1068 && p.y > 250 && p.y <= 304 && p.color === 'blue') blueSum++;
   }
   
@@ -305,9 +305,9 @@ export function step(world,dt,motOf){
         p.state = 'fall'; p.surf = null; p.vy = 40;
     }
     // Left/Right Walls for Grey Bucket
-    if (p.y > 350 && p.y <= 404) {
-      if (p.x > 410 && p.x < 460) p.x = Math.max(432 + p.hw, p.x);
-      if (p.x > 480 && p.x < 530) p.x = Math.min(516 - p.hw, p.x);
+    if (p.y > 310 && p.y <= 404) {
+      if (p.x > 390 && p.x < 440) p.x = Math.max(412 + p.hw, p.x);
+      if (p.x > 500 && p.x < 550) p.x = Math.min(536 - p.hw, p.x);
     }
     // Left/Right Walls for Blue Bucket
     if (p.y > 250 && p.y <= 304) {
@@ -332,8 +332,8 @@ export function step(world,dt,motOf){
           const overlap = (minDist - dist) * 0.5;
           let nx = dx / dist, ny = dy / dist;
           
-          if (Math.abs(nx) < 0.1 && Math.abs(ny) > 0.8) {
-             nx += (world.rnd() < 0.5 ? 0.4 : -0.4); // Tumble jitter!
+          if (Math.abs(nx) < 0.3 && Math.abs(ny) > 0.8) {
+             nx += (world.rnd() < 0.5 ? 0.6 : -0.6); // Tumble jitter!
           }
           
           if (p1.state === 'surf') {
