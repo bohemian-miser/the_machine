@@ -258,7 +258,7 @@ export function step(world,dt,motOf){
         // the pin slots in as an obstacle only for parcels still behind it
         if(id==='beltB_r'&&world.press.pinOn&&p.s<84&&leadS>84)leadS=Math.min(leadS,84);
         const maxS=Math.max(p.hw+1, leadS-p.hw-2);
-        if(p.s>maxS){p.s=maxS;if(p.vt>0)p.vt=0;const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;}
+        if(p.s>maxS){p.s=maxS;if(p.vt>0)p.vt=0;const [x,y]=surfPos(sf,p.s);p.x=x-(p.surfOffset||0);p.y=y;}
         leadS=p.s-p.hw;
       }
     }
@@ -288,7 +288,7 @@ export function step(world,dt,motOf){
   if (world.weighBucket.tippingG > 0) world.weighBucket.tippingG -= dt;
   if (world.weighBucket.tippingB > 0) world.weighBucket.tippingB -= dt;
   
-  if (blueSum >= 5) {
+  if (blueSum >= 15) {
     world.weighBucket.tippingG = 0.5;
     world.weighBucket.tippingB = 0.5;
   }
@@ -356,11 +356,34 @@ export function step(world,dt,motOf){
             const sf = world.smap[p2.surf];
             p2.s += (nx * sf.tx + ny * sf.ty) * overlap;
             const [sx, sy] = surfPos(sf, p2.s);
-            p2.x = sx; p2.y = sy;
+            p2.x = sx - (p2.surfOffset||0); p2.y = sy;
           } else {
             p2.x += nx * overlap; p2.y += ny * overlap;
           }
         }
+      }
+    }
+  }
+
+  /* -------- slanted wall boundary enforcement -------- */
+  for (const p of world.parcels) {
+    if (p.bin || p.state === 'carried') continue;
+    // Grey bucket
+    if (!eruptingG && p.y > 310 && p.y <= 404) {
+      if (p.x > 380 && p.x < 560) {
+         let xl = 412 + (15/94)*(p.y - 310) + p.hw;
+         let xr = 536 - (15/94)*(p.y - 310) - p.hw;
+         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
+         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
+      }
+    }
+    // Blue bucket
+    if (!eruptingB && p.y > 250 && p.y <= 304) {
+      if (p.x > 950 && p.x < 1100) {
+         let xl = 980 + (15/54)*(p.y - 250) + p.hw;
+         let xr = 1068 - (15/54)*(p.y - 250) - p.hw;
+         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
+         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
       }
     }
   }
