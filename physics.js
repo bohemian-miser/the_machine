@@ -145,12 +145,13 @@ export function step(world,dt,motOf){
         if(act&&typeof act==='object'&&act.link){
           const nx=world.smap[act.link];
           p.surf=nx.id;p.s=Math.max(0,p.s-sf.len);
+          p.surfOffset = 0;
           // keep speed magnitude
         }else{
           leaveSurf(world,p,sf,sf.len,1);
         }
       }else{
-        const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;
+        const [x,y]=surfPos(sf,p.s);p.x=x - (p.surfOffset||0);p.y=y;
         if(p.tool<0&&sf.id==='merge'&&p.x>1112&&p.x<1132&&mot('carousel')>0.5&&!world.caro.rotating)
           p.tool=world.caro.tool;
       }
@@ -178,9 +179,9 @@ export function step(world,dt,motOf){
       }
       // walls
       for(const wl of world.walls){
-        if(p.y>wl.y1&&p.y<wl.y2){
-          if(ox<=wl.x&&p.x>wl.x){p.x=wl.x-p.hw*0.4;p.vx*=-0.15;}
-          else if(ox>=wl.x&&p.x<wl.x){p.x=wl.x+p.hw*0.4;p.vx*=-0.15;}
+        if(p.y - p.hw * 2 < wl.y2 && p.y > wl.y1){
+          if(ox<=wl.x&&p.x>wl.x){p.x=wl.x-p.hw;p.vx*=-0.15;}
+          else if(ox>=wl.x&&p.x<wl.x){p.x=wl.x+p.hw;p.vx*=-0.15;}
         }
       }
       // bins
@@ -210,24 +211,29 @@ export function step(world,dt,motOf){
       // land on surfaces
       if(p.vy>0){
         let hit=null;
-        for(const sf of world.surfaces){
-          if(p.noLandId===sf.id&&world.t-p.noLandT<0.12)continue;
-          // must approach from the up-side of the surface
-          let nx=sf.ty,ny=-sf.tx;
-          if(ny>0){nx=-nx;ny=-ny;}
-          if((ox-sf.x1)*nx+(oy-sf.y1)*ny < -0.5)continue;
-          const c = segCross(ox, oy, p.x, p.y, sf.x1, sf.y1, sf.x2, sf.y2);
-          if (c && (!hit || c.t < hit.c.t)) {
-            hit = { sf, c };
+          let bestC = null, bestOffset = 0;
+          for(const sf of world.surfaces){
+            if(p.noLandId===sf.id&&world.t-p.noLandT<0.12)continue;
+            let nx=sf.ty,ny=-sf.tx;
+            if(ny>0){nx=-nx;ny=-ny;}
+            if((ox-sf.x1)*nx+(oy-sf.y1)*ny < -0.5)continue;
+            
+            for (const offset of [-p.hw, 0, p.hw]) {
+              const c = segCross(ox + offset, oy, p.x + offset, p.y, sf.x1, sf.y1, sf.x2, sf.y2);
+              if (c && (!hit || c.t < hit.c.t)) {
+                hit = { sf, c };
+                bestOffset = offset;
+              }
+            }
           }
-        }
-        if(hit){
-          const sf=hit.sf;
-          p.state='surf';p.surf=sf.id;p.s=hit.c.u*sf.len;
-          const proj=p.vx*sf.tx+p.vy*sf.ty;
-          p.vt=sf.kind==='belt'?0:proj*0.7;
-          p.vt=Math.max(-VMAX_SLIDE,Math.min(VMAX_SLIDE,p.vt));
-          const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;p.vx=0;p.vy=0;
+          if(hit){
+            const sf=hit.sf;
+            p.state='surf';p.surf=sf.id;p.s=hit.c.u*sf.len;
+            p.surfOffset = bestOffset;
+            const proj=p.vx*sf.tx+p.vy*sf.ty;
+            p.vt=sf.kind==='belt'?0:proj*0.7;
+            p.vt=Math.max(-VMAX_SLIDE,Math.min(VMAX_SLIDE,p.vt));
+            const [x,y]=surfPos(sf,p.s);p.x=x - p.surfOffset;p.y=y;p.vx=0;p.vy=0;
         }
       }
     }
@@ -341,7 +347,7 @@ export function step(world,dt,motOf){
             const sf = world.smap[p1.surf];
             p1.s -= (nx * sf.tx + ny * sf.ty) * overlap;
             const [sx, sy] = surfPos(sf, p1.s);
-            p1.x = sx; p1.y = sy;
+            p1.x = sx - (p1.surfOffset||0); p1.y = sy;
           } else {
             p1.x -= nx * overlap; p1.y -= ny * overlap;
           }
@@ -374,24 +380,5 @@ export function step(world,dt,motOf){
     }
   }
 
-  /* -------- enforce bucket walls post-collision -------- */
-  for (const p of world.parcels) {
-    if (p.bin || p.state === 'carried') continue;
-    if (!eruptingG && p.y > 310 && p.y <= 404) {
-      if (p.x > 380 && p.x < 560) {
-         let xl = 412 + (15/94)*(p.y - 310) + p.hw;
-         let xr = 536 - (15/94)*(p.y - 310) - p.hw;
-         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
-         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
-      }
-    }
-    if (!eruptingB && p.y > 250 && p.y <= 304) {
-      if (p.x > 950 && p.x < 1100) {
-         let xl = 980 + (15/54)*(p.y - 250) + p.hw;
-         let xr = 1068 - (15/54)*(p.y - 250) - p.hw;
-         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
-         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
-      }
-    }
-  }
+  // Removed invisible clamps because real shape physics is active
 } // end step

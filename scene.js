@@ -68,7 +68,12 @@ export function buildSurfaces(){
     S('bucket_5', 694, 880, 734, 880, {region: 'skyway'}),
     
     // Bucket bin physical boundaries (slanted walls + floor)
+    S('grey_wall_l', 412, 310, 427, 404, {region: 'sorter'}),
+    S('grey_wall_r', 536, 310, 521, 404, {region: 'sorter'}),
     S('grey_floor', 412, 404, 536, 404, {region: 'sorter', endStop: true}),
+    
+    S('blue_wall_l', 980, 250, 995, 304, {region: 'skyway'}),
+    S('blue_wall_r', 1068, 250, 1053, 304, {region: 'skyway'}),
     S('blue_floor', 980, 304, 1068, 304, {region: 'skyway', endStop: true}),
 
     S('arm_track_1', 1050, 480, 1100, 950, {region: 'carousel'}),
