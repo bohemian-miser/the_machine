@@ -1,0 +1,11 @@
+- generic [active] [ref=f1e1]:
+  - generic: the machine — a field study
+  - generic:
+    - generic: This is the system. Expanded 10x.
+    - generic: Fully operational. Boxes go in; boxes end up in four different bins, or stuck in endless chaotic loops.
+  - generic:
+    - generic [ref=f1e3]:
+      - text: "Speed:"
+      - slider "Speed:" [ref=f1e4]: "1"
+    - generic: 1 / 12
+    - generic: → next ← back or click

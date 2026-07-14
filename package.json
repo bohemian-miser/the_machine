@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^25.3.0"
+  },
+  "scripts": {
+    "test:unit": "node test_unit.js",
+    "test:e2e": "node test_e2e.js"
+  }
+}
