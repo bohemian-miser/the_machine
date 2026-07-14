@@ -50,31 +50,59 @@ export function step(world, dt, mot) {
       let front=null;
       for(const p of world.parcels)
         if(p.state==='surf'&&p.surf==='ledge_hi'&&(!front||p.s>front.s))front=p;
-      if(front&&front.s>sf.len-8){T.state='GRAB';T.timer=0;T.grabId=front.id;}
+      if(front&&front.s>sf.len-15){T.state='GRAB';T.timer=0;}
     }else if(T.state==='GRAB'){
       T.timer+=dt;
       if(T.timer>0.3){
-        const p=world.parcels.find(q=>q.id===T.grabId);
-        if(p&&p.state==='surf'&&p.surf==='ledge_hi'){
-          p.state='carried';p.carrier={type:'trolley'};T.carrying=p;T.state='MOVE_R';
-        }else T.state='WAIT';
+        T.carrying = [];
+        for (const p of world.parcels) {
+          if (p.state === 'surf' && p.surf === 'ledge_hi' && p.s > world.smap.ledge_hi.len - 30) {
+            p.state='carried';
+            p.carrier={type:'trolley', dx: p.x - 814};
+            T.carrying.push(p);
+          }
+        }
+        if (T.carrying.length > 0) {
+          T.state='MOVE_R';
+        } else {
+          T.state='WAIT';
+        }
       }
     }else if(T.state==='MOVE_R'){
       T.x+=150*dt;
-      const p=T.carrying;
-      if (p && p.color === 'blue' && p.number > 15 && T.x > 1000 && T.x < 1050) { // Drop them early if blue and number > 15
-        p.state='fall';p.carrier=null;p.x=T.x;p.y=162;p.vy=20;p.vx=0;
-        T.carrying=null;T.state='MOVE_L';
-      } else if(T.x>=1352){
+      if (T.carrying && T.carrying.length > 0) {
+        for (let i = T.carrying.length - 1; i >= 0; i--) {
+          const p = T.carrying[i];
+          if (p.color === 'blue' && T.x > 1000 && T.x < 1050) { 
+            p.state='fall'; p.carrier=null;
+            p.x=T.x + (p.carrier ? p.carrier.dx : 0); p.y=162; p.vy=20; p.vx=0;
+            T.carrying.splice(i, 1);
+          }
+        }
+      }
+      if(T.x>=1352){
         T.x=1352;
-        if(p){p.state='fall';p.carrier=null;p.x=T.x;p.y=162;p.vx=25;p.vy=0;}
-        T.carrying=null;T.state='MOVE_L';
+        if(T.carrying){
+          for (const p of T.carrying) {
+            p.state='fall'; p.carrier=null; 
+            p.x=T.x + (p.carrier ? p.carrier.dx : 0); p.y=162; p.vx=25; p.vy=0;
+          }
+        }
+        T.carrying=null; T.state='MOVE_L';
+      }else if(T.carrying && T.carrying.length === 0){
+        // all dropped!
+        T.carrying=null; T.state='MOVE_L';
       }
     }else if(T.state==='MOVE_L'){
       T.x-=170*dt;
       if(T.x<=814){T.x=814;T.state='WAIT';}
     }
-    if(T.carrying){T.carrying.x=T.x;T.carrying.y=160;}
+    if(T.carrying){
+      for (const p of T.carrying) {
+        p.x = T.x + (p.carrier ? p.carrier.dx : 0);
+        p.y = 160;
+      }
+    }
   }
 }
 
@@ -118,7 +146,7 @@ export function renderGlyph(ctx, world, r) {
   
   // Render a visual check at x=950, y=90
   ctx.font = '10px "IBM Plex Mono"';
-  ctx.fillText('num > 15 ? fall : pass', 900, 95);
+  ctx.fillText('color == blue ? fall : pass', 900, 95);
   ctx.beginPath(); ctx.moveTo(950, 100); ctx.lineTo(950, 130); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(945, 125); ctx.lineTo(950, 130); ctx.lineTo(955, 125); ctx.stroke();
 
