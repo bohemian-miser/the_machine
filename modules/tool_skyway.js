@@ -132,7 +132,7 @@ export function render(ctx, world, r, pass, p, amp) {
     if(wl.x>1290&&wl.x<1420)rline([[wl.x,wl.y1],[wl.x,wl.y2]],p,amp,seed+40+(wl.x&7));
 
   const blueBin = world.bins.find(b => b.id === 'blue');
-  if (blueBin) drawBin(blueBin, p, amp, seed + 100, true, world.weighBucket && world.weighBucket.tipping > 0);
+  if (blueBin) drawBin(blueBin, p, amp, seed + 100, true, world.weighBucket && world.weighBucket.tippingB > 0);
 }
 
 export function renderGlyph(ctx, world, r) {

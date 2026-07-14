@@ -272,43 +272,45 @@ export function step(world,dt,motOf){
   const bb = world.bins.find(b => b.id === 'blue');
   if (bb) bb.count = blueSum;
 
-  const oldTipping = (world.weighBucket && world.weighBucket.tipping) ? world.weighBucket.tipping : 0;
-  world.weighBucket = {weight: greySum};
-  world.weighBucket.tipping = oldTipping;
-  if (world.weighBucket.tipping > 0) world.weighBucket.tipping -= dt;
-  if(blueSum >= 5) {
-    world.weighBucket.tipping = 0.5; // for rendering animation
-  }
+  const oldTippingG = (world.weighBucket && world.weighBucket.tippingG) ? world.weighBucket.tippingG : 0;
+  const oldTippingB = (world.weighBucket && world.weighBucket.tippingB) ? world.weighBucket.tippingB : 0;
   
-  // Handle spatial boundaries and eruption mechanics!
-  const erupting = world.weighBucket.tipping > 0;
+  world.weighBucket = {weight: greySum, tippingG: oldTippingG, tippingB: oldTippingB};
+  
+  if (world.weighBucket.tippingG > 0) world.weighBucket.tippingG -= dt;
+  if (world.weighBucket.tippingB > 0) world.weighBucket.tippingB -= dt;
+  
+  if (greySum >= 5) world.weighBucket.tippingG = 0.5;
+  if (blueSum >= 5) world.weighBucket.tippingB = 0.5;
+  
+  const eruptingG = world.weighBucket.tippingG > 0;
+  const eruptingB = world.weighBucket.tippingB > 0;
+  
+  // Make sure the legacy property works for renderer if they share one
+  world.weighBucket.tipping = world.weighBucket.tippingG; 
   
   const floorG = world.smap['grey_floor'];
-  if (floorG) { floorG.y1 = erupting ? -1000 : 404; floorG.y2 = floorG.y1; }
+  if (floorG) { floorG.y1 = eruptingG ? -1000 : 404; floorG.y2 = floorG.y1; }
   
   const floorB = world.smap['blue_floor'];
-  if (floorB) { floorB.y1 = erupting ? -1000 : 304; floorB.y2 = floorB.y1; }
+  if (floorB) { floorB.y1 = eruptingB ? -1000 : 304; floorB.y2 = floorB.y1; }
 
   for (const p of world.parcels) {
-    // Left/Right Walls for Grey Bucket (432, 516)
-    if (p.y > 350 && p.y <= 404) {
-      if (p.x > 410 && p.x < 460) p.x = Math.max(432 + p.hw, p.x); // Left wall
-      if (p.x > 480 && p.x < 530) p.x = Math.min(516 - p.hw, p.x); // Right wall
-      if (erupting && p.x > 420 && p.x < 530) {
-        if (p.state === 'surf' && p.surf === 'grey_floor') {
-            p.state = 'fall'; p.surf = null; p.vy = 20;
-        }
-      }
+    if (eruptingG && p.state === 'surf' && p.surf === 'grey_floor') {
+        p.state = 'fall'; p.surf = null; p.vy = 40;
     }
-    // Left/Right Walls for Blue Bucket (980, 1068)
+    if (eruptingB && p.state === 'surf' && p.surf === 'blue_floor') {
+        p.state = 'fall'; p.surf = null; p.vy = 40;
+    }
+    // Left/Right Walls for Grey Bucket
+    if (p.y > 350 && p.y <= 404) {
+      if (p.x > 410 && p.x < 460) p.x = Math.max(432 + p.hw, p.x);
+      if (p.x > 480 && p.x < 530) p.x = Math.min(516 - p.hw, p.x);
+    }
+    // Left/Right Walls for Blue Bucket
     if (p.y > 250 && p.y <= 304) {
-      if (p.x > 960 && p.x < 1010) p.x = Math.max(980 + p.hw, p.x); // Left wall
-      if (p.x > 1030 && p.x < 1090) p.x = Math.min(1068 - p.hw, p.x); // Right wall
-      if (erupting && p.x > 970 && p.x < 1080) {
-        if (p.state === 'surf' && p.surf === 'blue_floor') {
-            p.state = 'fall'; p.surf = null; p.vy = 20;
-        }
-      }
+      if (p.x > 960 && p.x < 1010) p.x = Math.max(980 + p.hw, p.x); 
+      if (p.x > 1030 && p.x < 1090) p.x = Math.min(1068 - p.hw, p.x);
     }
   }
 
