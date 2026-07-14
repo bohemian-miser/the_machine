@@ -262,7 +262,7 @@ export function step(world,dt,motOf){
   
   // 1. Spatially count the items dynamically resting in the boundaries
   for(const p of world.parcels){
-    if (p.x > 432 && p.x < 516 && p.y > 420 && p.y <= 474) greySum++; 
+    if (p.x > 432 && p.x < 516 && p.y > 350 && p.y <= 404) greySum++; 
     if (p.x > 980 && p.x < 1068 && p.y > 250 && p.y <= 304 && p.color === 'blue') blueSum++;
   }
   
@@ -284,14 +284,14 @@ export function step(world,dt,motOf){
   const erupting = world.weighBucket.tipping > 0;
   
   const floorG = world.smap['grey_floor'];
-  if (floorG) { floorG.y1 = erupting ? -1000 : 474; floorG.y2 = floorG.y1; }
+  if (floorG) { floorG.y1 = erupting ? -1000 : 404; floorG.y2 = floorG.y1; }
   
   const floorB = world.smap['blue_floor'];
   if (floorB) { floorB.y1 = erupting ? -1000 : 304; floorB.y2 = floorB.y1; }
 
   for (const p of world.parcels) {
     // Left/Right Walls for Grey Bucket (432, 516)
-    if (p.y > 420 && p.y <= 474) {
+    if (p.y > 350 && p.y <= 404) {
       if (p.x > 410 && p.x < 460) p.x = Math.max(432 + p.hw, p.x); // Left wall
       if (p.x > 480 && p.x < 530) p.x = Math.min(516 - p.hw, p.x); // Right wall
       if (erupting && p.x > 420 && p.x < 530) {
@@ -326,7 +326,11 @@ export function step(world,dt,motOf){
         const minDist = p1.hw + p2.hw + 2; 
         if (dist > 0 && dist < minDist) {
           const overlap = (minDist - dist) * 0.5;
-          const nx = dx / dist, ny = dy / dist;
+          let nx = dx / dist, ny = dy / dist;
+          
+          if (Math.abs(nx) < 0.1 && ny < -0.8) {
+             nx += (world.rnd() < 0.5 ? 0.3 : -0.3); // Tumble jitter!
+          }
           
           if (p1.state === 'surf') {
             const sf = world.smap[p1.surf];

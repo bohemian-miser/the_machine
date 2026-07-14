@@ -68,7 +68,7 @@ export function buildSurfaces(){
     S('bucket_5', 694, 880, 734, 880, {region: 'skyway'}),
     
     // Bucket bin physical floors
-    S('grey_floor', 432, 474, 516, 474, {region: 'sorter', endStop: true}),
+    S('grey_floor', 432, 404, 516, 404, {region: 'sorter', endStop: true}),
     S('blue_floor', 980, 304, 1068, 304, {region: 'skyway', endStop: true}),
 
     S('arm_track_1', 1050, 480, 1100, 950, {region: 'carousel'}),
@@ -118,7 +118,7 @@ export const WALLS=[
 ];
 
 export const BINS=[
-  {id:'grey', x:432,y:420,w:84,h:54},
+  {id:'grey', x:432,y:350,w:84,h:54},
   {id:'blue', x:980,y:250,w:88,h:54},
   {id:'rej',  x:1280,y:612,w:74,h:50},
   {id:'A',    x:990,y:828,w:88,h:58},
