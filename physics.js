@@ -245,7 +245,7 @@ export function step(world,dt,motOf){
         // the pin slots in as an obstacle only for parcels still behind it
         if(id==='beltB_r'&&world.press.pinOn&&p.s<84&&leadS>84)leadS=Math.min(leadS,84);
         const maxS=Math.max(p.hw+1, leadS-p.hw-2);
-        if(false){p.s=maxS;if(p.vt>0)p.vt=0;const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;}
+        if(p.s>maxS){p.s=maxS;if(p.vt>0)p.vt=0;const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;}
         leadS=p.s-p.hw;
       }
     }
@@ -269,6 +269,44 @@ export function step(world,dt,motOf){
       if(p.bin === 'grey' || p.bin === 'blue'){
         p.bin=null; p.state='fall'; p.fade=0;
         p.vy = 20; p.vx = 0;
+      }
+    }
+  }
+
+  /* -------- global 2D collision resolution -------- */
+  for (let iter = 0; iter < 2; iter++) {
+    for (let i = 0; i < world.parcels.length; i++) {
+      const p1 = world.parcels[i];
+      if (p1.bin || p1.state === 'carried') continue;
+      for (let j = i + 1; j < world.parcels.length; j++) {
+        const p2 = world.parcels[j];
+        if (p2.bin || p2.state === 'carried') continue;
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.hypot(dx, dy);
+        const minDist = p1.hw + p2.hw + 2; 
+        if (dist > 0 && dist < minDist) {
+          const overlap = (minDist - dist) * 0.5;
+          const nx = dx / dist, ny = dy / dist;
+          
+          if (p1.state === 'surf') {
+            const sf = world.smap[p1.surf];
+            p1.s -= (nx * sf.tx + ny * sf.ty) * overlap;
+            const [sx, sy] = surfPos(sf, p1.s);
+            p1.x = sx; p1.y = sy;
+          } else {
+            p1.x -= nx * overlap; p1.y -= ny * overlap;
+          }
+          
+          if (p2.state === 'surf') {
+            const sf = world.smap[p2.surf];
+            p2.s += (nx * sf.tx + ny * sf.ty) * overlap;
+            const [sx, sy] = surfPos(sf, p2.s);
+            p2.x = sx; p2.y = sy;
+          } else {
+            p2.x += nx * overlap; p2.y += ny * overlap;
+          }
+        }
       }
     }
   }

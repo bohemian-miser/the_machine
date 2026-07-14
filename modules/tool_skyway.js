@@ -13,8 +13,9 @@ export function step(world, dt, mot) {
       const riders = B.riders[i];
       for (let j = riders.length - 1; j >= 0; j--) {
         const rider = riders[j];
-        rider.x = 714; 
-        rider.y = y - 1 - (j * 5); // Visually stack them slightly
+        const dx = rider.carrier && rider.carrier.dx ? rider.carrier.dx : 0;
+        rider.x = 714 + dx; 
+        rider.y = y - 1 - (j * 6); // Visually stack them slightly
         if(y <= 134){
           riders.splice(j, 1);
           rider.state = 'fall'; rider.carrier = null;
@@ -32,7 +33,9 @@ export function step(world, dt, mot) {
                                  (pickupStr !== 'pt_out' && p.s > sf.len - 8);
                if (canPickup && !riders.includes(p)) {
                  riders.push(p);
-                 p.state = 'carried'; p.carrier = {type: 'bucket', i};
+                 let dx = p.x - 714;
+                 dx = Math.max(-14, Math.min(14, dx)); // clamp to bucket width
+                 p.state = 'carried'; p.carrier = {type: 'bucket', i, dx: dx};
                }
             }
           }
