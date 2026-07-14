@@ -15,19 +15,17 @@ export function step(world, dt, mot) {
         bSf.y1 = y; bSf.y2 = y;
       }
       
-      if((y < 890 && y > 870) || (y < 690 && y > 670) || (y < 332 && y > 322)){
-        const pickupStr = y > 800 ? 'ledge_base' : (y > 500 ? 'pt_out' : 'ledge_lo');
-        const sf = world.smap[pickupStr];
-        if (sf) {
-          for (const p of world.parcels) {
-            if (p.state === 'surf' && p.surf === pickupStr) {
-               const canPickup = (pickupStr === 'pt_out' && Math.abs(p.x - 714) < 20) || 
-                                 (pickupStr !== 'pt_out' && p.s > sf.len - 15);
-               if (canPickup) {
-                 p.surf = 'bucket_' + i;
-                 p.s = Math.max(0, Math.min(bSf.len, p.x - bSf.x1)); // Map absolute X to bucket S
-                 // No more carried state! It's purely riding a physical surface.
-               }
+      // Physics-based spatial scooping: grab anything in the elevator shaft that the bucket touches!
+      const dySweep = B.speed * dt;
+      for (const p of world.parcels) {
+        if (p.state !== 'carried' && !p.bin && (!p.surf || !p.surf.startsWith('bucket_'))) {
+          // Check horizontal overlap with the bucket
+          if (p.x + (p.hw||10) > bSf.x1 && p.x - (p.hw||10) < bSf.x2) {
+            // Check vertical overlap with the bucket's sweep path this frame
+            if (p.y > y - 12 && p.y < y + dySweep + 16) {
+              p.state = 'surf';
+              p.surf = 'bucket_' + i;
+              p.s = Math.max(0, Math.min(bSf.len, p.x - bSf.x1));
             }
           }
         }
