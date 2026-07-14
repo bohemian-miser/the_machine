@@ -62,9 +62,8 @@ export function buildSurfaces(){
     S('arm_track_1', 1050, 480, 1100, 950, {region: 'carousel'}),
     S('arm_track_2', 1190, 480, 1150, 950, {region: 'carousel'}),
 
-    S('ret_l1', -100, 950, 400, 950, {kind: 'belt', speed: 200, region: 'dispatch'}),
-    S('ret_r', 1700, 950, 1200, 950, {kind: 'belt', speed: -200, region: 'dispatch'}),
-    S('ret_m', 1200, 950, 400, 950, {kind: 'belt', speed: -200, region: 'dispatch'}),
+    S('ret_l', -100, 874, 702, 874, {kind: 'belt', speed: 200, region: 'dispatch', next: 'ledge_base'}),
+    S('ret_r', 1700, 874, 736, 874, {kind: 'belt', speed: -200, region: 'dispatch', next: 'ledge_base'}),
     
     // PREVIOUS SURFACES
     S('gy1',578,246,498,330,{region:'sorter',next:'gy2'}),
