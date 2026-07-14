@@ -270,8 +270,8 @@ export function step(world,dt,motOf){
   
   // 1. Spatially count the items dynamically resting in the boundaries
   for(const p of world.parcels){
-    if (p.x > 412 && p.x < 536 && p.y > 310 && p.y <= 404) greySum++; 
-    if (p.x > 980 && p.x < 1068 && p.y > 250 && p.y <= 304) blueSum++;
+    if (p.x > 412 && p.x < 536 && p.y > 100 && p.y <= 404) greySum++; 
+    if (p.x > 980 && p.x < 1068 && p.y > 100 && p.y <= 304) blueSum++;
   }
   
   // Update the static counters for the renderer
