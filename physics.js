@@ -330,8 +330,8 @@ export function step(world,dt,motOf){
           const overlap = (minDist - dist) * 0.5;
           let nx = dx / dist, ny = dy / dist;
           
-          if (Math.abs(nx) < 0.1 && ny < -0.8) {
-             nx += (world.rnd() < 0.5 ? 0.3 : -0.3); // Tumble jitter!
+          if (Math.abs(nx) < 0.1 && Math.abs(ny) > 0.8) {
+             nx += (world.rnd() < 0.5 ? 0.4 : -0.4); // Tumble jitter!
           }
           
           if (p1.state === 'surf') {
