@@ -9,28 +9,32 @@ export function step(world, dt, mot) {
       const prog=(B.phase+i*B.spacing)%B.cycle;
       const y=880-prog;
       B['y'+i]=y;
-      const rider=B.riders[i];
-      if(rider){
-        rider.x=714; rider.y=y-1;
-        if(y<=134){
-          B.riders[i]=null;
-          rider.state='fall';rider.carrier=null;
-          rider.x=716;rider.y=130;rider.vx=112;rider.vy=-10;
+      if(!Array.isArray(B.riders[i])) B.riders[i] = [];
+      const riders = B.riders[i];
+      for (let j = riders.length - 1; j >= 0; j--) {
+        const rider = riders[j];
+        rider.x = 714; 
+        rider.y = y - 1 - (j * 5); // Visually stack them slightly
+        if(y <= 134){
+          riders.splice(j, 1);
+          rider.state = 'fall'; rider.carrier = null;
+          rider.x = 716; rider.y = 130; rider.vx = 112; rider.vy = -10;
         }
-      }else if((y<890&&y>870) || (y<690&&y>670) || (y<332&&y>322)){
-        const pickupStr = y>800 ? 'ledge_base' : (y>500 ? 'pt_out' : 'ledge_lo');
-        const sf=world.smap[pickupStr];
+      }
+      
+      if((y < 890 && y > 870) || (y < 690 && y > 670) || (y < 332 && y > 322)){
+        const pickupStr = y > 800 ? 'ledge_base' : (y > 500 ? 'pt_out' : 'ledge_lo');
+        const sf = world.smap[pickupStr];
         if (sf) {
-          let front=null;
-          for(const p of world.parcels) {
-            if(p.state==='surf'&&p.surf===pickupStr) {
-               if (pickupStr === 'pt_out' && Math.abs(p.x - 714) < 15) front = p;
-               else if (pickupStr !== 'pt_out' && (!front||p.s>front.s)) front = p;
+          for (const p of world.parcels) {
+            if (p.state === 'surf' && p.surf === pickupStr) {
+               const canPickup = (pickupStr === 'pt_out' && Math.abs(p.x - 714) < 15) || 
+                                 (pickupStr !== 'pt_out' && p.s > sf.len - 8);
+               if (canPickup && !riders.includes(p)) {
+                 riders.push(p);
+                 p.state = 'carried'; p.carrier = {type: 'bucket', i};
+               }
             }
-          }
-          if(front && (pickupStr === 'pt_out' || front.s > sf.len - 8)){
-            B.riders[i]=front;
-            front.state='carried';front.carrier={type:'bucket',i};
           }
         }
       }
