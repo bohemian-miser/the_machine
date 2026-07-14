@@ -54,7 +54,7 @@ export function step(world, dt, mot) {
     }else if(T.state==='MOVE_R'){
       T.x+=150*dt;
       const p=T.carrying;
-      if (p && p.color === 'blue' && p.number > 15 && T.x > 940 && T.x < 980) { // Drop them early if blue and number > 15
+      if (p && p.color === 'blue' && p.number > 15 && T.x > 1000 && T.x < 1050) { // Drop them early if blue and number > 15
         p.state='fall';p.carrier=null;p.x=T.x;p.y=162;p.vy=20;p.vx=0;
         T.carrying=null;T.state='MOVE_L';
       } else if(T.x>=1352){

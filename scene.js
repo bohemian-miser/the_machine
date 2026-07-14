@@ -32,7 +32,7 @@ export function buildSurfaces(){
     S('hop_l',120,80,206,150,{region:'intake'}),
     S('hop_r',310,80,230,150,{region:'intake'}),
     S('sieve',190,170,260,170,{kind:'belt', speed:45, region:'intake', onEnd:'fall'}),
-    S('beltA',250,215,560,215,{kind:'belt',speed:55,region:'intake',stopIf:m=>m('sorter')<0.5, holdIf:(mot,p)=>!p.stamped, holdAt:60}),
+    S('beltA',250,215,560,215,{kind:'belt',speed:55,region:'intake',stopIf:m=>m('sorter')<0.5}),
     
     // NEW REGIONS: CRUSHERS, PAINTERS, PINBALL
     // (cr_chute removed as small things no longer go to crushers)
@@ -52,7 +52,7 @@ export function buildSurfaces(){
     S('pt_drop4', 235, 610, 235, 650, {region: 'painters', next: 'pt_b4'}),
     S('pt_b4', 235, 650, 30, 650, {kind: 'belt', speed: 120, region: 'painters', painter: 'white', next: 'pt_drop5'}),
     S('pt_drop5', 30, 650, 30, 660, {region: 'painters', next: 'pt_out'}),
-    S('pt_out', 20, 660, 750, 680, {kind: 'belt', speed: 120, region: 'painters'}),
+    S('pt_out', 20, 660, 500, 670, {kind: 'belt', speed: 120, region: 'painters'}),
 
     S('pb_l', 350, 700, 550, 850, {region: 'pinball'}),
     S('pb_r', 800, 700, 650, 850, {region: 'pinball'}),

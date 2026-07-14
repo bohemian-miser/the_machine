@@ -245,7 +245,7 @@ export function step(world,dt,motOf){
         // the pin slots in as an obstacle only for parcels still behind it
         if(id==='beltB_r'&&world.press.pinOn&&p.s<84&&leadS>84)leadS=Math.min(leadS,84);
         const maxS=Math.max(p.hw+1, leadS-p.hw-2);
-        if(p.s>maxS){p.s=maxS;if(p.vt>0)p.vt=0;const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;}
+        if(false){p.s=maxS;if(p.vt>0)p.vt=0;const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;}
         leadS=p.s-p.hw;
       }
     }

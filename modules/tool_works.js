@@ -10,8 +10,7 @@ export function step(world, dt, mot) {
     if(P.state==='ARMED'){
       P.piston+= (0-P.piston)*Math.min(1,8*dt);
       const front=world.parcels.find(p=>p.state==='surf'&&p.surf==='beltA'
-        &&!p.stamped
-        &&p.s >= 59 &&Math.abs(p.vt)<6);
+        &&!p.stamped &&p.s >= 59);
       if(front && world.weighBucket){ 
          P.state='STAMP'; P.timer=0; P.target=front.id; P.misfire=false; 
       }
