@@ -9,18 +9,10 @@ export function step(world, dt, mot) {
       const prog=(B.phase+i*B.spacing)%B.cycle;
       const y=880-prog;
       B['y'+i]=y;
-      if(!Array.isArray(B.riders[i])) B.riders[i] = [];
-      const riders = B.riders[i];
-      for (let j = riders.length - 1; j >= 0; j--) {
-        const rider = riders[j];
-        const dx = rider.carrier && rider.carrier.dx ? rider.carrier.dx : 0;
-        rider.x = 714 + dx; 
-        rider.y = y - 1 - (j * 6); // Visually stack them slightly
-        if(y <= 134){
-          riders.splice(j, 1);
-          rider.state = 'fall'; rider.carrier = null;
-          rider.x = 716; rider.y = 130; rider.vx = 112; rider.vy = -10;
-        }
+      
+      const bSf = world.smap['bucket_' + i];
+      if (bSf) {
+        bSf.y1 = y; bSf.y2 = y;
       }
       
       if((y < 890 && y > 870) || (y < 690 && y > 670) || (y < 332 && y > 322)){
@@ -29,15 +21,24 @@ export function step(world, dt, mot) {
         if (sf) {
           for (const p of world.parcels) {
             if (p.state === 'surf' && p.surf === pickupStr) {
-               const canPickup = (pickupStr === 'pt_out' && Math.abs(p.x - 714) < 15) || 
-                                 (pickupStr !== 'pt_out' && p.s > sf.len - 8);
-               if (canPickup && !riders.includes(p)) {
-                 riders.push(p);
-                 let dx = p.x - 714;
-                 dx = Math.max(-14, Math.min(14, dx)); // clamp to bucket width
-                 p.state = 'carried'; p.carrier = {type: 'bucket', i, dx: dx};
+               const canPickup = (pickupStr === 'pt_out' && Math.abs(p.x - 714) < 20) || 
+                                 (pickupStr !== 'pt_out' && p.s > sf.len - 15);
+               if (canPickup) {
+                 p.surf = 'bucket_' + i;
+                 p.s = Math.max(0, Math.min(bSf.len, p.x - bSf.x1)); // Map absolute X to bucket S
+                 // No more carried state! It's purely riding a physical surface.
                }
             }
+          }
+        }
+      }
+      if (y <= 134) {
+        if (bSf) { bSf.y1 = -1000; bSf.y2 = -1000; }
+        for (let j = world.parcels.length - 1; j >= 0; j--) {
+          const p = world.parcels[j];
+          if (p.state === 'surf' && p.surf === 'bucket_' + i) {
+            p.state = 'fall'; p.surf = null;
+            p.x = 716; p.y = 130; p.vx = 112; p.vy = -5;
           }
         }
       }

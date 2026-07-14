@@ -58,6 +58,14 @@ export function buildSurfaces(){
     S('pb_r', 800, 700, 650, 850, {region: 'pinball'}),
     S('pb_out', 550, 850, 700, 850, {kind: 'belt', speed: 120, region: 'pinball', next: 'ledge_base'}),
     S('ledge_base', 702, 874, 736, 882, {region: 'skyway', endStop: true}),
+    
+    // Dynamic Skyway Bucket Surfaces (y updated in tool_skyway)
+    S('bucket_0', 694, 880, 734, 880, {region: 'skyway'}),
+    S('bucket_1', 694, 880, 734, 880, {region: 'skyway'}),
+    S('bucket_2', 694, 880, 734, 880, {region: 'skyway'}),
+    S('bucket_3', 694, 880, 734, 880, {region: 'skyway'}),
+    S('bucket_4', 694, 880, 734, 880, {region: 'skyway'}),
+    S('bucket_5', 694, 880, 734, 880, {region: 'skyway'}),
 
     S('arm_track_1', 1050, 480, 1100, 950, {region: 'carousel'}),
     S('arm_track_2', 1190, 480, 1150, 950, {region: 'carousel'}),
