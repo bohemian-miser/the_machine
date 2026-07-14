@@ -280,8 +280,10 @@ export function step(world,dt,motOf){
   if (world.weighBucket.tippingG > 0) world.weighBucket.tippingG -= dt;
   if (world.weighBucket.tippingB > 0) world.weighBucket.tippingB -= dt;
   
-  if (greySum >= 5) world.weighBucket.tippingG = 0.5;
-  if (blueSum >= 5) world.weighBucket.tippingB = 0.5;
+  if (blueSum >= 5) {
+    world.weighBucket.tippingG = 0.5;
+    world.weighBucket.tippingB = 0.5;
+  }
   
   const eruptingG = world.weighBucket.tippingG > 0;
   const eruptingB = world.weighBucket.tippingB > 0;
