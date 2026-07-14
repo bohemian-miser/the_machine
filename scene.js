@@ -76,8 +76,8 @@ export function buildSurfaces(){
     S('blue_wall_r', 1068, 250, 1053, 304, {region: 'skyway'}),
     S('blue_floor', 980, 304, 1068, 304, {region: 'skyway', endStop: true}),
 
-    S('arm_track_1', 1050, 480, 1100, 950, {region: 'carousel'}),
-    S('arm_track_2', 1190, 480, 1150, 950, {region: 'carousel'}),
+    S('arm_track_1', 1050, 480, 950, 600, {region: 'carousel'}),
+    S('arm_track_2', 1190, 480, 1194, 498, {region: 'carousel', next: 'ck_in'}),
 
     S('ret_l', -100, 874, 702, 874, {kind: 'belt', speed: 200, region: 'dispatch', next: 'ledge_base'}),
     S('ret_r', 1700, 874, 736, 874, {kind: 'belt', speed: -200, region: 'dispatch', next: 'ledge_base'}),
