@@ -216,12 +216,24 @@ export function step(world,dt,motOf){
           let nx=sf.ty,ny=-sf.tx;
           if(ny>0){nx=-nx;ny=-ny;}
           if((ox-sf.x1)*nx+(oy-sf.y1)*ny < -0.5)continue;
-          const c=segCross(ox,oy,p.x,p.y, sf.x1,sf.y1,sf.x2,sf.y2);
-          if(c&&(!hit||c.t<hit.c.t))hit={sf,c};
+          // Extend the surface line mathematically to account for parcel half-width (hw)
+          // sf.tx and sf.ty are normalized tangential vectors.
+          const dx_ext = sf.tx * p.hw;
+          const dy_ext = sf.ty * p.hw;
+          const sx1 = sf.x1 - dx_ext, sy1 = sf.y1 - dy_ext;
+          const sx2 = sf.x2 + dx_ext, sy2 = sf.y2 + dy_ext;
+          
+          const c = segCross(ox, oy, p.x, p.y, sx1, sy1, sx2, sy2);
+          if (c && (!hit || c.t < hit.c.t)) {
+            // Re-normalize 'u' so that p.s scales against the original length sf.len, ignoring our extensions
+            // A point that crossed on the extended tip will yield negative u or u > 1 here!
+            c.u_orig = (c.u * (sf.len + 2 * p.hw) - p.hw) / sf.len;
+            hit = { sf, c };
+          }
         }
         if(hit){
           const sf=hit.sf;
-          p.state='surf';p.surf=sf.id;p.s=hit.c.u*sf.len;
+          p.state='surf';p.surf=sf.id;p.s=hit.c.u_orig*sf.len;
           const proj=p.vx*sf.tx+p.vy*sf.ty;
           p.vt=sf.kind==='belt'?0:proj*0.7;
           p.vt=Math.max(-VMAX_SLIDE,Math.min(VMAX_SLIDE,p.vt));
@@ -304,16 +316,7 @@ export function step(world,dt,motOf){
     if (eruptingB && p.state === 'surf' && p.surf === 'blue_floor') {
         p.state = 'fall'; p.surf = null; p.vy = 40;
     }
-    // Left/Right Walls for Grey Bucket
-    if (p.y > 310 && p.y <= 404) {
-      if (p.x > 390 && p.x < 440) p.x = Math.max(412 + p.hw, p.x);
-      if (p.x > 500 && p.x < 550) p.x = Math.min(536 - p.hw, p.x);
-    }
-    // Left/Right Walls for Blue Bucket
-    if (p.y > 250 && p.y <= 304) {
-      if (p.x > 960 && p.x < 1010) p.x = Math.max(980 + p.hw, p.x); 
-      if (p.x > 1030 && p.x < 1090) p.x = Math.min(1068 - p.hw, p.x);
-    }
+    // (Vertical bucket walls removed by request so packages can naturally fall out)
   }
 
   /* -------- global 2D collision resolution -------- */

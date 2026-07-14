@@ -106,12 +106,10 @@ export function hatch(x,y,w,h,n,p,amp,seed){
 }
 export function drawBin(b,p,amp,seed,hatched,isOpen=false){
   if(isOpen){
-    rline([[b.x,b.y],[b.x,b.y+b.h]],p,amp,seed);
-    rline([[b.x+b.w,b.y],[b.x+b.w,b.y+b.h]],p,amp,seed+1);
     rline([[b.x,b.y+b.h],[b.x-20,b.y+b.h+20]],p,amp,seed+2);
     rline([[b.x+b.w,b.y+b.h],[b.x+b.w+20,b.y+b.h+20]],p,amp,seed+3);
   } else {
-    rline([[b.x,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h],[b.x+b.w,b.y]],p,amp,seed);
+    rline([[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]],p,amp,seed);
   }
   if(hatched)hatch(b.x,b.y,b.w,b.h,4,p,amp,seed+9);
 }
