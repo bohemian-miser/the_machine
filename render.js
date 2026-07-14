@@ -105,11 +105,14 @@ export function hatch(x,y,w,h,n,p,amp,seed){
     rline([[x+5+i*(w-10)/n,y+h-4],[x+5+i*(w-10)/n+11,y+5]],Math.min(1,p*1.2),amp*.55,seed+i);
 }
 export function drawBin(b,p,amp,seed,hatched,isOpen=false){
+  const SL = 15; // slant inward distance
   if(isOpen){
-    rline([[b.x,b.y+b.h],[b.x-20,b.y+b.h+20]],p,amp,seed+2);
-    rline([[b.x+b.w,b.y+b.h],[b.x+b.w+20,b.y+b.h+20]],p,amp,seed+3);
+    rline([[b.x,b.y],[b.x+SL,b.y+b.h]],p,amp,seed);
+    rline([[b.x+b.w,b.y],[b.x+b.w-SL,b.y+b.h]],p,amp,seed+1);
+    rline([[b.x+SL,b.y+b.h],[b.x+SL-20,b.y+b.h+20]],p,amp,seed+2);
+    rline([[b.x+b.w-SL,b.y+b.h],[b.x+b.w-SL+20,b.y+b.h+20]],p,amp,seed+3);
   } else {
-    rline([[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]],p,amp,seed);
+    rline([[b.x,b.y],[b.x+SL,b.y+b.h],[b.x+b.w-SL,b.y+b.h],[b.x+b.w,b.y]],p,amp,seed);
   }
   if(hatched)hatch(b.x,b.y,b.w,b.h,4,p,amp,seed+9);
 }

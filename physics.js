@@ -216,24 +216,14 @@ export function step(world,dt,motOf){
           let nx=sf.ty,ny=-sf.tx;
           if(ny>0){nx=-nx;ny=-ny;}
           if((ox-sf.x1)*nx+(oy-sf.y1)*ny < -0.5)continue;
-          // Extend the surface line mathematically to account for parcel half-width (hw)
-          // sf.tx and sf.ty are normalized tangential vectors.
-          const dx_ext = sf.tx * p.hw;
-          const dy_ext = sf.ty * p.hw;
-          const sx1 = sf.x1 - dx_ext, sy1 = sf.y1 - dy_ext;
-          const sx2 = sf.x2 + dx_ext, sy2 = sf.y2 + dy_ext;
-          
-          const c = segCross(ox, oy, p.x, p.y, sx1, sy1, sx2, sy2);
+          const c = segCross(ox, oy, p.x, p.y, sf.x1, sf.y1, sf.x2, sf.y2);
           if (c && (!hit || c.t < hit.c.t)) {
-            // Re-normalize 'u' so that p.s scales against the original length sf.len, ignoring our extensions
-            // A point that crossed on the extended tip will yield negative u or u > 1 here!
-            c.u_orig = (c.u * (sf.len + 2 * p.hw) - p.hw) / sf.len;
             hit = { sf, c };
           }
         }
         if(hit){
           const sf=hit.sf;
-          p.state='surf';p.surf=sf.id;p.s=hit.c.u_orig*sf.len;
+          p.state='surf';p.surf=sf.id;p.s=hit.c.u*sf.len;
           const proj=p.vx*sf.tx+p.vy*sf.ty;
           p.vt=sf.kind==='belt'?0:proj*0.7;
           p.vt=Math.max(-VMAX_SLIDE,Math.min(VMAX_SLIDE,p.vt));
@@ -275,7 +265,7 @@ export function step(world,dt,motOf){
   // 1. Spatially count the items dynamically resting in the boundaries
   for(const p of world.parcels){
     if (p.x > 412 && p.x < 536 && p.y > 310 && p.y <= 404) greySum++; 
-    if (p.x > 980 && p.x < 1068 && p.y > 250 && p.y <= 304 && p.color === 'blue') blueSum++;
+    if (p.x > 980 && p.x < 1068 && p.y > 250 && p.y <= 304) blueSum++;
   }
   
   // Update the static counters for the renderer
@@ -292,7 +282,7 @@ export function step(world,dt,motOf){
   if (world.weighBucket.tippingG > 0) world.weighBucket.tippingG -= dt;
   if (world.weighBucket.tippingB > 0) world.weighBucket.tippingB -= dt;
   
-  if (blueSum >= 5) {
+  if (blueSum >= 15) {
     world.weighBucket.tippingG = 0.5;
     world.weighBucket.tippingB = 0.5;
   }
@@ -305,15 +295,23 @@ export function step(world,dt,motOf){
   
   const floorG = world.smap['grey_floor'];
   if (floorG) { floorG.y1 = eruptingG ? -1000 : 404; floorG.y2 = floorG.y1; }
+  const wallGl = world.smap['grey_wall_l'];
+  if (wallGl) { wallGl.y1 = eruptingG ? -1000 : 310; wallGl.y2 = eruptingG ? -1000 : 404; }
+  const wallGr = world.smap['grey_wall_r'];
+  if (wallGr) { wallGr.y1 = eruptingG ? -1000 : 310; wallGr.y2 = eruptingG ? -1000 : 404; }
   
   const floorB = world.smap['blue_floor'];
   if (floorB) { floorB.y1 = eruptingB ? -1000 : 304; floorB.y2 = floorB.y1; }
+  const wallBl = world.smap['blue_wall_l'];
+  if (wallBl) { wallBl.y1 = eruptingB ? -1000 : 250; wallBl.y2 = eruptingB ? -1000 : 304; }
+  const wallBr = world.smap['blue_wall_r'];
+  if (wallBr) { wallBr.y1 = eruptingB ? -1000 : 250; wallBr.y2 = eruptingB ? -1000 : 304; }
 
   for (const p of world.parcels) {
-    if (eruptingG && p.state === 'surf' && p.surf === 'grey_floor') {
+    if (eruptingG && p.state === 'surf' && p.surf && p.surf.startsWith('grey_')) {
         p.state = 'fall'; p.surf = null; p.vy = 40;
     }
-    if (eruptingB && p.state === 'surf' && p.surf === 'blue_floor') {
+    if (eruptingB && p.state === 'surf' && p.surf && p.surf.startsWith('blue_')) {
         p.state = 'fall'; p.surf = null; p.vy = 40;
     }
     // (Vertical bucket walls removed by request so packages can naturally fall out)
@@ -375,4 +373,25 @@ export function step(world,dt,motOf){
       world.parcels.splice(i,1);
     }
   }
-}
+
+  /* -------- enforce bucket walls post-collision -------- */
+  for (const p of world.parcels) {
+    if (p.bin || p.state === 'carried') continue;
+    if (!eruptingG && p.y > 310 && p.y <= 404) {
+      if (p.x > 380 && p.x < 560) {
+         let xl = 412 + (15/94)*(p.y - 310) + p.hw;
+         let xr = 536 - (15/94)*(p.y - 310) - p.hw;
+         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
+         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
+      }
+    }
+    if (!eruptingB && p.y > 250 && p.y <= 304) {
+      if (p.x > 950 && p.x < 1100) {
+         let xl = 980 + (15/54)*(p.y - 250) + p.hw;
+         let xr = 1068 - (15/54)*(p.y - 250) - p.hw;
+         if (p.x < xl) { p.x = xl; p.vx *= 0.5; }
+         if (p.x > xr) { p.x = xr; p.vx *= 0.5; }
+      }
+    }
+  }
+} // end step
