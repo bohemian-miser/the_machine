@@ -167,13 +167,7 @@ export function step(world,dt,motOf){
       }
       // sorter colour router: crossing the flap line while falling
       if(oy<236&&p.y>=236&&p.x>548&&p.x<630){
-        if (p.number > 15) {
-           const chute='cr_bypass';
-           const sf=world.smap[chute];
-           p.state='surf';p.surf=chute;p.s=4;p.vt=80;
-           const [x,y]=surfPos(sf,p.s);p.x=x;p.y=y;
-           continue; // bypass the rest of the flap sorting
-        }
+
         if(mot('sorter')<0.5){p.x=ox;p.y=oy;p.vy=0;continue;} // frozen flap blocks the drop
         const chute=p.color==='blue'?'bl1':(p.color==='grey'?'gy1':'wm1');
         const sf=world.smap[chute];
